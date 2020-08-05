@@ -1,63 +1,113 @@
-<% include ../partials/header %>
-<div class="row">
-  <div class="col-md-3">
-    <p class="lead">Little Facebook!</p>
-    <div class="list-group">
-      <li class="list-group-item active">Info 1</li>
-      <li class="list-group-item">Info 2</li>
-      <li class="list-group-item">Info 3</li>
-    </div>
-    <div id="map"></div>
-  </div>
-  <div class="col-md-9">
-    <div class="thumbnail" id="show-img">
-      <img class="img-responsive" src="../images/<%= tripplace.image %>">
-      
-      <div class="caption-full">
-        <!-- <h4 class="pull-right">
-          $<%= tripplace.cost %>/night
-        </h4> -->
-        <h4><a><%=tripplace.name%></a></h4>
-        <p><%= tripplace.description %></p>
-        <p>
-          <em>Submitted by: <%= tripplace.author.username %>, <%= moment(tripplace.createdAt).fromNow() %></em>
-        </p>
-        <% if(currentUser && tripplace.author.id.equals(currentUser._id) || currentUser && currentUser.isAdmin){ %>
-        <a class="btn btn-warning" href="/tripplaces/<%= tripplace._id %>/edit">Edit</a>
-        <form action="/tripplaces/<%= tripplace._id %>?_method=DELETE" method="POST" class="delete-form">
-          <button class="btn btn-danger">Delete</button>
-        </form>
-        <% } %>
-      </div>
-    </div>
-    <div class="well">
-      <div class="text-right">
-        <a class="btn btn-success" href="/tripplaces/<%= tripplace._id %>/comments/new">Add New Comment</a>
-      </div>
-      <hr>
-      <% tripplace.comments.forEach(function(comment){ %>
-      <div class="row">
-        <div class="col-md-12">
-          <strong><%= comment.author.username %></strong>
-          <span class="pull-right"><%= moment(comment.createdAt).fromNow() %></span>
-          <div>
-           <%= comment.text %> 
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>LittleFacebook</title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+      <link rel="stylesheet" href="/stylesheets/show.css">
+  </head>
+  <body>
+  <nav class="navbar navbar-default">
+      <div class="container">
+          <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
 
-           <% if(currentUser && tripplace.author.id.equals(currentUser._id) || currentUser && currentUser.isAdmin){ %>
-            <div class="pull-right">
-              <a href="/tripplaces/<%=tripplace._id%>/comments/<%=comment._id%>/edit" class="btn btn-xs btn-warning">EDIT</a>
-              <form class="delete-form" action="/tripplaces/<%=tripplace._id%>/comments/<%=comment._id%>?_method=DELETE" method="POST">
-                <button class="btn btn-xs btn-danger">DELETE</button>
-              </form>
-            </div>
-          <% } %>
-          <hr>
+              <a class="navbar-brand" href="/">LittleFacebook</a>
+          </div>
+          <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+              <li class="<%= typeof page !== 'undefined' && page === 'tripplaces' ? 'active' : '' %>"><a href="/tripplaces">Home</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <% if(!currentUser){ %>
+                    <li class="<%= typeof page !== 'undefined' && page === 'login' ? 'active' : '' %>"><a href="/login">Login</a></li>
+                    <li class="<%= typeof page !== 'undefined' && page === 'register' ? 'active' : '' %>"><a href="/register">Sign Up</a></li>
+                <% } else { %>
+                    <li><a href="#">Signed In As <%= currentUser.username %></a></li>
+                    <li><a href="/logout">Logout</a></li>
+                <% } %>
+            </ul>
+          </div>
+      </div>
+  </nav>
+  
+  <div class="container">
+     <% if(error && error.length > 0) { %>
+       <div class="alert alert-danger"><p><%=error %></p></div>
+     <% } %>
+     
+     <% if(success && success.length > 0) { %>
+       <div class="alert alert-success"><p><%= success %></p></div>
+     <% } %>
+  </div>
+  <div class="container">
+
+    <div class="row">
+      <div class="col-md-3">
+        <p class="lead">Little Facebook!</p>
+        <div class="list-group">
+            <!-- for ratings -->
+          <!-- <li class="list-group-item active">Info 1</li>
+          <li class="list-group-item">Info 2</li>
+          <li class="list-group-item">Info 3</li> -->
         </div>
+        <div id="map"></div>
+      </div>
+      <div class="col-md-9">
+        <div class="thumbnail" id="show-img">
+          <img class="img-responsive" src="../images/<%= tripplace.image %>">
+          
+          <div class="caption-full">
+            <!-- <h4 class="pull-right">
+              $<%= tripplace.cost %>/night
+            </h4> -->
+            <h4><a><%=tripplace.name%></a></h4>
+            <p><%= tripplace.description %></p>
+            <p>
+              <em>Submitted by: <%= tripplace.author.username %>, <%= moment(tripplace.createdAt).fromNow() %></em>
+            </p>
+            <% if(currentUser && tripplace.author.id.equals(currentUser._id) || currentUser && currentUser.isAdmin){ %>
+            <form action="/tripplaces/<%= tripplace._id %>?_method=DELETE" method="POST" class="delete-form">
+              <button class="btn btn-danger">Delete</button>
+            </form>
+            <% } %>
+          </div>
+        </div>
+        <div class="well">
+          <div class="text-right">
+            <a class="btn btn-success" href="/tripplaces/<%= tripplace._id %>/comments/new">Add New Comment</a>
+          </div>
+          <hr>
+          <% tripplace.comments.forEach(function(comment){ %>
+          <div class="row">
+            <div class="col-md-12">
+              <strong><%= comment.author.username %></strong>
+              <span class="pull-right"><%= moment(comment.createdAt).fromNow() %></span>
+              <div>
+              <%= comment.text %> 
+
+              <% if(currentUser && tripplace.author.id.equals(currentUser._id) || currentUser && currentUser.isAdmin){ %>
+                <div class="pull-right">
+                  <a href="/tripplaces/<%=tripplace._id%>/comments/<%=comment._id%>/edit" class="btn btn-xs btn-warning">EDIT</a>
+                  <form class="delete-form" action="/tripplaces/<%=tripplace._id%>/comments/<%=comment._id%>?_method=DELETE" method="POST">
+                    <button class="btn btn-xs btn-danger">DELETE</button>
+                  </form>
+                </div>
+              <% } %>
+              <hr>
+            </div>
+          </div>
+        </div>
+        <% }) %>
       </div>
     </div>
-    <% }) %>
-  </div>
-</div>
 </div>
 
 <% include ../partials/footer %>

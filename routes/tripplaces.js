@@ -3,11 +3,8 @@ var router  = express.Router();
 var Tripplace = require("../models/tripplace");
 var Comment = require("../models/comment");
 var middleware = require("../middleware");
-//var geocoder = require('geocoder');
 var { isLoggedIn, checkUserTripplace, upload } = middleware; // destructuring assignment
 
-
-//router.use(express.static(__dirname + "/public"));
 
 //INDEX - show all tripplaces
 router.get("/", (req, res)=>{
@@ -31,11 +28,6 @@ router.post("/", isLoggedIn, upload.single('image'), (req, res)=>{
       id: req.user._id,
       username: req.user.username
   }
-  //var cost = req.body.cost;
-//   geocoder.geocode(req.body.location, function (err, data) {
-//     var lat = data.results[0].geometry.location.lat;
-//     var lng = data.results[0].geometry.location.lng;
-//     var location = data.results[0].formatted_address;
     var newTripplace = {name: name, image: image, description: desc, author:author/*cost: cost, location: location, lat: lat, lng: lng*/};
     // Create a new tripplace and save to DB
     Tripplace.create(newTripplace, (err, newlyCreated)=>{
@@ -47,7 +39,6 @@ router.post("/", isLoggedIn, upload.single('image'), (req, res)=>{
             res.redirect("/tripplaces");
         }
     });
-//   });
 });
 
 //NEW - show form to create new tripplace
@@ -77,30 +68,29 @@ router.get("/:id", (req, res)=>{
     });
 });
 
-// EDIT - shows edit form for a tripplace
-router.get("/:id/edit",isLoggedIn ,checkUserTripplace , (req, res)=>{
-  //render edit template with that tripplace
-  res.render("tripplaces/edit", {tripplace: req.tripplace});
-});
+// // EDIT - shows edit form for a tripplace
+// router.get("/:id/edit",isLoggedIn ,checkUserTripplace , (req, res)=>{
+//   //render edit template with that tripplace
+//   res.render("tripplaces/edit", {tripplace: req.tripplace});
+// });
 
-// PUT - updates tripplace in the database
-router.put("/:id", upload.single('imageFile'), (req, res)=>{
-//   geocoder.geocode(req.body.location, function (err, data) {
-//     var lat = data.results[0].geometry.location.lat;
-//     var lng = data.results[0].geometry.location.lng;
-//     var location = data.results[0].formatted_address;
-    var newData = {name: req.body.name, image: req.body.image, description: req.body.description, /*cost: req.body.cost, location: location, lat: lat, lng: lng*/};
-    Tripplace.findByIdAndUpdate(req.params.id, {$set: newData}, (err, tripplace)=>{
-        if(err){
-            req.flash("error", err.message);
-            res.redirect("back");
-        } else {
-            req.flash("success","Successfully Updated!");
-            res.redirect("/tripplaces/" + tripplace._id);
-        }
-    });
-  //});
-});
+// // PUT - updates tripplace in the database
+// router.put("/:id", upload.single('imageFile'), (req, res)=>{
+//     if (!req.file) {
+//         req.flash("error", "something went wrong! try again later");
+//         res.redirect("back");
+//     }
+//     var newData = {name: req.body.name, image: req.file.filename, description: req.body.description};
+//     Tripplace.findByIdAndUpdate(req.params.id, {$set: newData}, (err, tripplace)=>{
+//         if(err){
+//             req.flash("error", err.message);
+//             res.redirect("back");
+//         } else {
+//             req.flash("success","Successfully Updated!");
+//             res.redirect("/tripplaces/" + tripplace._id);
+//         }
+//     });
+// });
 
 // DELETE - removes tripplace and its comments from the database
 router.delete("/:id", isLoggedIn, checkUserTripplace, (req, res)=>{
